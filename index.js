@@ -3,8 +3,8 @@ import shell from 'shelljs';
 import path from 'path';
 import fs from 'fs';
 import fse from 'fs-extra';
-import {aliyunpan, ipaDirPath} from './config.json';
-
+const aliyunpan = "~/Downloads/aliyunpan-v0.2.4-darwin-macos-amd64/aliyunpan";
+const ipaDirPath = "files";
 const args = process.argv;
 
 const ipaDir = ipaDirPath
