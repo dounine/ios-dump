@@ -1,0 +1,26 @@
+{
+  "name": "ios-dump",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dounine/ios-dump.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dounine/ios-dump/issues"
+  },
+  "homepage": "https://github.com/dounine/ios-dump#readme",
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "fs-extra": "^11.1.0",
+    "request": "^2.88.2",
+    "shelljs": "^0.8.5"
+  }
+}
