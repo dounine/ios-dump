@@ -13,7 +13,12 @@ const {aliyunpan, ipaDirPath, token} = require('./config.json');
 const args = process.argv;
 
 const ipaDir = ipaDirPath
-
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+function replaceAll(str, match, replacement){
+    return str.replace(new RegExp(escapeRegExp(match), 'g'), ()=>replacement);
+}
 async function main() {
 
     const ipas = (await fse.readdir(ipaDir))
@@ -66,7 +71,7 @@ async function main() {
     let newIpaPath = path.resolve(ipaDir, latestFileName)
     if (`${latestFileName}` !== latestDumpIpa.fileName) {
         console.log(`${latestFileName} 跟 ${latestDumpIpa.fileName} 不相同，重新命名`)
-        let oldIpaPath = path.resolve(ipaDir, latestDumpIpa.fileName).replaceAll(' ', '\\ ')
+        let oldIpaPath = replaceAll(path.resolve(ipaDir, latestDumpIpa.fileName).toString(),' ', '\\ ')
         shell.exec(`mv ${oldIpaPath} ${newIpaPath}`).stdout
     }
     let ipadumpIpaPath = path.resolve(ipaDir, 'ipadump.com_' + latestFileName)
