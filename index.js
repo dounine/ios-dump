@@ -125,7 +125,7 @@ async function main() {
                 file: `https://api.ipadump.com/file/pan/download?fileId=38a3605bc95c2aaca1107da96ec8dfaa&fileName=ipadump.com_${appid}_${version}.ipa`
             }
         }, (err, res, body) => {
-            console.log(` ${appid}:${version} 版本增加成功`)
+            console.log(`${appid}:${version} 版本增加成功`)
             resolve(body)
         })
     })
