@@ -27,8 +27,6 @@ function calculateHash(file) {
     return crypto.createHash('sha1').update(readFile).digest("hex");
 }
 
-,
-
 async function main() {
 
     const ipas = (await fse.readdir(ipaDir))
