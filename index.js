@@ -76,7 +76,7 @@ async function main() {
     }
     let ipadumpIpaPath = path.resolve(ipaDir, 'ipadump.com_' + latestFileName)
     shell.exec(`mv ${newIpaPath} ${ipadumpIpaPath}`).stdout
-    shell.exec(`${aliyunpan} upload ${ipadumpIpaPath} /ipadump/ipa/${appid}`).stdout
+    shell.exec(`${aliyunpan} upload -ow ${ipadumpIpaPath} /ipadump/ipa/${appid}`).stdout
 
     await new Promise((resolve, reject) => {
         request('https://api.ipadump.com/dump/update', {
