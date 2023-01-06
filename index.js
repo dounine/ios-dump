@@ -3,9 +3,13 @@ import shell from 'shelljs';
 import path from 'path';
 import fs from 'fs';
 import fse from 'fs-extra';
+import {createRequire} from "module";
 
-const aliyunpan = "~/Downloads/aliyunpan-v0.2.4-darwin-macos-amd64/aliyunpan";
-const ipaDirPath = "files";
+const require = createRequire(import.meta.url);
+const {aliyunpan, ipaDirPath, token} = require('./config.json');
+
+// const aliyunpan = "~/Downloads/aliyunpan-v0.2.4-darwin-macos-amd64/aliyunpan";
+// const ipaDirPath = "files";
 const args = process.argv;
 
 const ipaDir = ipaDirPath
@@ -54,12 +58,15 @@ async function main() {
             resolve(body)
         })
     })
+    if (shell.exec(`${aliyunpan} who`).stdout.includes("未登录帐号")) {
+        shell.exec(`${aliyunpan} login --RefreshToken ${token}`).stdout
+    }
     shell.exec(`${aliyunpan} mkdir /ipadump/ipa/${appid}`).stdout //创建目录
     let latestFileName = `${appid}_${version}.ipa`
     let newIpaPath = path.resolve(ipaDir, latestFileName)
     if (`${latestFileName}` !== latestDumpIpa.fileName) {
         console.log(`${latestFileName} 跟 ${latestDumpIpa.fileName} 不相同，重新命名`)
-        let oldIpaPath = path.resolve(ipaDir, latestDumpIpa.fileName)
+        let oldIpaPath = path.resolve(ipaDir, latestDumpIpa.fileName).replaceAll(' ', '\\ ')
         shell.exec(`mv ${oldIpaPath} ${newIpaPath}`).stdout
     }
     let ipadumpIpaPath = path.resolve(ipaDir, 'ipadump.com_' + latestFileName)
