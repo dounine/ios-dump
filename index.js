@@ -19,6 +19,10 @@ function escapeRegExp(string) {
 function replaceAll(str, match, replacement){
     return str.replace(new RegExp(escapeRegExp(match), 'g'), ()=>replacement);
 }
+function calculateHash(file){
+    const readFile = fs.readFileSync(file);
+    return crypto.createHash('sha1').update(readFile).digest("hex");
+},
 async function main() {
 
     const ipas = (await fse.readdir(ipaDir))
@@ -76,7 +80,9 @@ async function main() {
     }
     let ipadumpIpaPath = path.resolve(ipaDir, 'ipadump.com_' + latestFileName)
     shell.exec(`mv ${newIpaPath} ${ipadumpIpaPath}`).stdout
-    shell.exec(`${aliyunpan} upload -ow ${ipadumpIpaPath} /ipadump/ipa/${appid}`).stdout
+    if (!shell.exec(`${aliyunpan} ll /ipadump/ipa/${appid}/${latestFileName}`).stdout.includes(calculateHash(ipadumpIpaPath).toUpperCase())) {
+        shell.exec(`${aliyunpan} upload ${ipadumpIpaPath} /ipadump/ipa/${appid} --ow`).stdout
+    }
 
     await new Promise((resolve, reject) => {
         request('https://api.ipadump.com/dump/update', {
