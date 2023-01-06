@@ -3,13 +3,14 @@ import shell from 'shelljs';
 import path from 'path';
 import fs from 'fs';
 import fse from 'fs-extra';
+
 const aliyunpan = "~/Downloads/aliyunpan-v0.2.4-darwin-macos-amd64/aliyunpan";
 const ipaDirPath = "files";
 const args = process.argv;
 
 const ipaDir = ipaDirPath
 
-const main = async () => {
+async function main() {
 
     const ipas = (await fse.readdir(ipaDir))
 
@@ -27,9 +28,9 @@ const main = async () => {
     });
 
     const latestDumpIpa = convertIpas[0]
+    let oldAppName = latestDumpIpa.fileName
     let appid = latestDumpIpa.fileName.split('_')[0]
     let version = latestDumpIpa.fileName.split('_')[1].replace('.ipa', '')
-    let latestFileName = `${appid}_${version}.ipa`
     if (args.length === 3) {
         appid = args[2]
     }
@@ -54,6 +55,7 @@ const main = async () => {
         })
     })
     shell.exec(`${aliyunpan} mkdir /ipadump/ipa/${appid}`).stdout //创建目录
+    let latestFileName = `${appid}_${version}.ipa`
     let newIpaPath = path.resolve(ipaDir, latestFileName)
     if (`${latestFileName}` !== latestDumpIpa.fileName) {
         console.log(`${latestFileName} 跟 ${latestDumpIpa.fileName} 不相同，重新命名`)
@@ -101,4 +103,4 @@ const main = async () => {
     })
 }
 
-await main()
+main()
