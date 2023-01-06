@@ -89,6 +89,8 @@ async function main() {
     shell.exec(`mv ${newIpaPath} ${ipadumpIpaPath}`).stdout
     if (!shell.exec(`${aliyunpan} ll /ipadump/ipa/${appid}/${latestFileName}`).stdout.includes(calculateHash(ipadumpIpaPath).toUpperCase())) {
         shell.exec(`${aliyunpan} upload ${ipadumpIpaPath} /ipadump/ipa/${appid} --ow`).stdout
+    }else{
+        console.log('文件已经存在，不需要上传')
     }
 
     await new Promise((resolve, reject) => {
