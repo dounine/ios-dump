@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import fse from 'fs-extra';
 import {createRequire} from "module";
+import crypto from 'crypto';
 
 const require = createRequire(import.meta.url);
 const {aliyunpan, ipaDirPath, token} = require('./config.json');
