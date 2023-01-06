@@ -13,16 +13,22 @@ const {aliyunpan, ipaDirPath, token} = require('./config.json');
 const args = process.argv;
 
 const ipaDir = ipaDirPath
+
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
-function replaceAll(str, match, replacement){
-    return str.replace(new RegExp(escapeRegExp(match), 'g'), ()=>replacement);
+
+function replaceAll(str, match, replacement) {
+    return str.replace(new RegExp(escapeRegExp(match), 'g'), () => replacement);
 }
-function calculateHash(file){
+
+function calculateHash(file) {
     const readFile = fs.readFileSync(file);
     return crypto.createHash('sha1').update(readFile).digest("hex");
-},
+}
+
+,
+
 async function main() {
 
     const ipas = (await fse.readdir(ipaDir))
@@ -36,12 +42,15 @@ async function main() {
     }).filter(item => {
         return !item.fileName.startsWith('ipadump.com');
     });
+    if (convertIpas.length === 0) {
+        console.log('不存在未上传文件')
+        return
+    }
     convertIpas.sort((b, a) => {
         return a.time - b.time
     });
 
     const latestDumpIpa = convertIpas[0]
-    let oldAppName = latestDumpIpa.fileName
     let appid = latestDumpIpa.fileName.split('_')[0]
     let version = latestDumpIpa.fileName.split('_')[1].replace('.ipa', '')
     if (args.length === 3) {
@@ -75,7 +84,7 @@ async function main() {
     let newIpaPath = path.resolve(ipaDir, latestFileName)
     if (`${latestFileName}` !== latestDumpIpa.fileName) {
         console.log(`${latestFileName} 跟 ${latestDumpIpa.fileName} 不相同，重新命名`)
-        let oldIpaPath = replaceAll(path.resolve(ipaDir, latestDumpIpa.fileName).toString(),' ', '\\ ')
+        let oldIpaPath = replaceAll(path.resolve(ipaDir, latestDumpIpa.fileName).toString(), ' ', '\\ ')
         shell.exec(`mv ${oldIpaPath} ${newIpaPath}`).stdout
     }
     let ipadumpIpaPath = path.resolve(ipaDir, 'ipadump.com_' + latestFileName)
