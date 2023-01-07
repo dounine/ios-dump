@@ -23,9 +23,22 @@ function replaceAll(str, match, replacement) {
     return str.replace(new RegExp(escapeRegExp(match), 'g'), () => replacement);
 }
 
-function calculateHash(file) {
-    const readFile = fs.readFileSync(file);
-    return crypto.createHash('sha1').update(readFile).digest("hex");
+function calculateHash(filePath) {
+    return new Promise((resolve, reject) => {
+            let hash = crypto.createHash('sha1')
+            let rs = fs.createReadStream(filePath)
+            rs.on('open', () => {
+            })
+            rs.on('error', (err) => {
+                reject(err)
+            })
+            rs.on('data', (chunk) => {
+                hash.update(chunk)
+            })
+            rs.on('end', () => {
+                resolve(hash.digest("hex"))
+            })
+        })
 }
 
 async function main() {
@@ -88,7 +101,7 @@ async function main() {
     }
     let ipadumpIpaPath = path.resolve(ipaDir, 'ipadump.com_' + latestFileName)
     shell.exec(`mv ${newIpaPath} ${ipadumpIpaPath}`).stdout
-    if (!shell.exec(`${aliyunpan} ll /ipadump/ipa/${appid}/${latestFileName}`).stdout.includes(calculateHash(ipadumpIpaPath).toUpperCase())) {
+    if (!shell.exec(`${aliyunpan} ll /ipadump/ipa/${appid}/${latestFileName}`).stdout.includes((await calculateHash(ipadumpIpaPath)).toUpperCase())) {
         shell.exec(`${aliyunpan} upload ${ipadumpIpaPath} /ipadump/ipa/${appid} --ow`).stdout
     }else{
         console.log('文件已经存在，不需要上传')
