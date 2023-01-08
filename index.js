@@ -13,7 +13,7 @@ const {aliyunpan, ipaDirPath, token} = require('./config.json');
 // const ipaDirPath = "files";
 const args = process.argv;
 
-const ipaDir = ipaDirPath
+const ipaDir = ipaDirPath[args[2]]
 
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
@@ -65,12 +65,12 @@ async function main() {
     const latestDumpIpa = convertIpas[0]
     let appid = latestDumpIpa.fileName.split('_')[0]
     let version = latestDumpIpa.fileName.split('_')[1].replace('.ipa', '')
-    if (args.length === 3) {
-        appid = args[2]
-    }
     if (args.length === 4) {
-        appid = args[2]
-        version = args[3]
+        appid = args[3]
+    }
+    if (args.length === 5) {
+        appid = args[3]
+        version = args[4]
     }
 
     console.log(`正在修改 ${appid} 砸壳状态为砸壳中`)
