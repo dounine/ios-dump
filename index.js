@@ -25,20 +25,20 @@ function replaceAll(str, match, replacement) {
 
 function calculateHash(filePath) {
     return new Promise((resolve, reject) => {
-            let hash = crypto.createHash('sha1')
-            let rs = fs.createReadStream(filePath)
-            rs.on('open', () => {
-            })
-            rs.on('error', (err) => {
-                reject(err)
-            })
-            rs.on('data', (chunk) => {
-                hash.update(chunk)
-            })
-            rs.on('end', () => {
-                resolve(hash.digest("hex"))
-            })
+        let hash = crypto.createHash('sha1')
+        let rs = fs.createReadStream(filePath)
+        rs.on('open', () => {
         })
+        rs.on('error', (err) => {
+            reject(err)
+        })
+        rs.on('data', (chunk) => {
+            hash.update(chunk)
+        })
+        rs.on('end', () => {
+            resolve(hash.digest("hex"))
+        })
+    })
 }
 
 async function main() {
@@ -103,7 +103,7 @@ async function main() {
     shell.exec(`mv ${newIpaPath} ${ipadumpIpaPath}`).stdout
     if (!shell.exec(`${aliyunpan} ll /ipadump/ipa/${appid}/${latestFileName}`).stdout.includes((await calculateHash(ipadumpIpaPath)).toUpperCase())) {
         shell.exec(`${aliyunpan} upload ${ipadumpIpaPath} /ipadump/ipa/${appid} --ow`).stdout
-    }else{
+    } else {
         console.log('文件已经存在，不需要上传')
     }
 
@@ -134,6 +134,7 @@ async function main() {
                 push: 1,
                 download: 0,
                 size: f.size,
+                official: 1,
                 des: ``,
                 file: `https://api.ipadump.com/file/pan/download?fileId=38a3605bc95c2aaca1107da96ec8dfaa&fileName=ipadump.com_${appid}_${version}.ipa`
             }
