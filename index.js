@@ -135,7 +135,7 @@ async function main() {
                 download: 0,
                 size: f.size,
                 official: 1,
-                des: ``,
+                des: `官方版本`,
                 file: `https://api.ipadump.com/file/pan/download?fileId=38a3605bc95c2aaca1107da96ec8dfaa&fileName=ipadump.com_${appid}_${version}.ipa`
             }
         }, (err, res, body) => {
