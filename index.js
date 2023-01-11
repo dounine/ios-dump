@@ -65,12 +65,12 @@ async function main() {
     const latestDumpIpa = convertIpas[0]
     let appid = latestDumpIpa.fileName.split('_')[0]
     let version = latestDumpIpa.fileName.split('_')[1].replace('.ipa', '')
-    if (args.length === 4) {
-        appid = args[3]
-    }
     if (args.length === 5) {
-        appid = args[3]
-        version = args[4]
+        appid = args[4]
+    }
+    if (args.length === 6) {
+        appid = args[4]
+        version = args[5]
     }
 
     console.log(`正在修改 ${appid} 砸壳状态为砸壳中`)
@@ -81,6 +81,7 @@ async function main() {
             body: {
                 appid,
                 version,
+                latest: parseInt(args[3]),
                 status: 1
             }
         }, (err, res, body) => {
@@ -114,6 +115,7 @@ async function main() {
             body: {
                 appid,
                 version,
+                latest: parseInt(args[3]),
                 status: 2
             }
         }, (err, res, body) => {
