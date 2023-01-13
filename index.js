@@ -211,6 +211,7 @@ async function main() {
                     json: true,
                     body: upsertData
                 }, (err, res, body) => {
+                    shell.exec(`rm -rf ${ipadumpIpaPath}`).stdout
                     console.log(`${appid}:${version} 版本增加成功`)
                     resolve(body)
                 })
