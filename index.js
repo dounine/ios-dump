@@ -166,7 +166,7 @@ async function main() {
                     body: {
                         appid,
                         version,
-                        latest: parseInt(args[3]),
+                        latest: latestVersion,
                         status: 2
                     }
                 }, (err, res, body) => {
@@ -180,6 +180,7 @@ async function main() {
                 appid,
                 version,
                 status: 2,
+                country: dump.country,
                 push: 1,
                 download: 0,
                 size: f.size,
