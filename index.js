@@ -72,8 +72,13 @@ async function main() {
     let mergeName = "";
     let appid = "";
     let version = "";
+    console.log('退出请输入q或者exit')
     console.log('请输入要提取应用的编号(默认第一个)：')
     rl.on('line', async (line) => {
+        if (line.trim() === 'q' || line.trim() === 'exit') {
+            rl.close();
+            return;
+        }
         if (setup === 0) {//编号输入
             if (!line.trim()) {
                 dump = dumps[0]
