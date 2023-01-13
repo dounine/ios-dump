@@ -176,6 +176,9 @@ async function main() {
                         appid,
                         version,
                         country: dump.country,
+                        name: mergeName,
+                        lname: dump.name,
+                        icon: dump.icon,
                         latest: latestVersion,
                         status: 2
                     }
