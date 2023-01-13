@@ -72,6 +72,8 @@ async function main() {
     let mergeName = "";
     let appid = "";
     let version = "";
+    let latestDumpIpa = null;
+    let latestVersion = 1;
     console.log('退出请输入q或者exit')
     console.log('请输入要提取应用的编号(默认第一个)：')
     rl.on('line', async (line) => {
@@ -92,14 +94,13 @@ async function main() {
                 console.log('没有此编号,请检查')
             }
         } else if (setup === 1) {//简化名称输入
+            mergeName = line.trim()
             console.log('是否是最新版本(默认是)：')
             setup = 2
         } else if (setup === 2) {//是否是最新版本
-            rl.close()
             appid = dump.appid;
-            let latestVersion = parseInt(line.trim() || '1')
+            latestVersion = parseInt(line.trim() || '1')
 
-            console.log(dump)
             const ipas = (await fse.readdir(ipaDir))
 
             const convertIpas = ipas.map(fileName => {
@@ -119,11 +120,15 @@ async function main() {
                 return a.time - b.time
             });
 
-            const latestDumpIpa = convertIpas[0]
+            latestDumpIpa = convertIpas[0]
             const appName = latestDumpIpa.fileName.split('_')[0]
-            mergeName = line.trim() || appName || dump.name
+            mergeName = mergeName || appName || dump.name
             version = latestDumpIpa.fileName.split('_')[1].replace('.ipa', '')
 
+            console.log(dump)
+            console.log(`处理的信息 -> ${mergeName}:${version} 最新:${latestVersion} 是否开始处理(默认开始):`)
+            setup = 3
+        } else if (setup === 3) {
             console.log(`正在修改 ${appid} 砸壳状态为砸壳中`)
             await new Promise((resolve, reject) => {
                 request('https://api.ipadump.com/dump/update', {
@@ -148,7 +153,7 @@ async function main() {
             if (shell.exec(`${aliyunpan} who`).stdout.includes("未登录帐号")) {
                 shell.exec(`${aliyunpan} login --RefreshToken ${token}`).stdout
             }
-            shell.exec(`${aliyunpan} mkdir /ipadump/ipas/${appid}`).stdout //创建目录
+            shell.exec(`${aliyunpan} mkdir /ipadump/ipas/${dump.country}/${appid}`).stdout //创建目录
             let latestFileName = `${mergeName}_${version}.ipa`
             let newIpaPath = path.resolve(ipaDir, latestFileName)
             if (`${latestFileName}` !== latestDumpIpa.fileName) {
@@ -158,8 +163,8 @@ async function main() {
             }
             let ipadumpIpaPath = path.resolve(ipaDir, 'ipadump.com_' + latestFileName)
             shell.exec(`mv ${newIpaPath} ${ipadumpIpaPath}`).stdout
-            if (!shell.exec(`${aliyunpan} ll /ipadump/ipas/${appid}/${'ipadump.com_' + latestFileName}`).stdout.includes((await calculateHash(ipadumpIpaPath)).toUpperCase())) {
-                shell.exec(`${aliyunpan} upload ${ipadumpIpaPath} /ipadump/ipas/${appid} --ow`).stdout
+            if (!shell.exec(`${aliyunpan} ll /ipadump/ipas/${dump.country}/${appid}/${'ipadump.com_' + latestFileName}`).stdout.includes((await calculateHash(ipadumpIpaPath)).toUpperCase())) {
+                shell.exec(`${aliyunpan} upload ${ipadumpIpaPath} /ipadump/ipas/${dump.country}/${appid} --ow`).stdout
             } else {
                 console.log('文件已经存在，不需要上传')
             }
@@ -203,6 +208,7 @@ async function main() {
                     resolve(body)
                 })
             })
+            rl.close()
         }
     })
 
