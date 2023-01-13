@@ -57,7 +57,6 @@ function calculateHash(filePath) {
 }
 
 async function main() {
-    console.log('请输入要提取应用的编号：')
     let dumps = await new Promise((resolve, reject) => {
         request('https://api.ipadump.com/dump/dumps', {
             method: 'GET',
@@ -73,9 +72,14 @@ async function main() {
     let mergeName = "";
     let appid = "";
     let version = "";
+    console.log('请输入要提取应用的编号(默认第一个)：')
     rl.on('line', async (line) => {
         if (setup === 0) {//编号输入
-            if (parseInt(line) < dumps.length) {
+            if (!line.trim()) {
+                dump = dumps[0]
+                console.log('请输入简化名称(默认相同)：')
+                setup = 1
+            } else if (parseInt(line) < dumps.length) {
                 dump = dumps[parseInt(line)]
                 console.log('请输入简化名称(默认相同)：')
                 setup = 1
@@ -83,7 +87,6 @@ async function main() {
                 console.log('没有此编号,请检查')
             }
         } else if (setup === 1) {//简化名称输入
-            // mergeName = line.trim() || dump.name
             console.log('是否是最新版本(默认是)：')
             setup = 2
         } else if (setup === 2) {//是否是最新版本
@@ -116,35 +119,27 @@ async function main() {
             mergeName = line.trim() || appName || dump.name
             version = latestDumpIpa.fileName.split('_')[1].replace('.ipa', '')
 
-            // if (args.length === 5) {
-            //     appid = args[4]
-            // }
-            // if (args.length === 6) {
-            //     appid = args[4]
-            //     version = args[5]
-            // }
-            //
             console.log(`正在修改 ${appid} 砸壳状态为砸壳中`)
-            // await new Promise((resolve, reject) => {
-            //     request('https://api.ipadump.com/dump/update', {
-            //         method: 'POST',
-            //         json: true,
-            //         body: {
-            //             appid,
-            //             country: dump.country,
-            //             name: mergeName,
-            //             lname: dump.name,
-            //             icon: dump.icon,
-            //             version,
-            //             des: '',
-            //             latest: latestVersion,
-            //             status: 1
-            //         }
-            //     }, (err, res, body) => {
-            //         console.log(`修改 ${appid} 砸壳状态成功`)
-            //         resolve(body)
-            //     })
-            // })
+            await new Promise((resolve, reject) => {
+                request('https://api.ipadump.com/dump/update', {
+                    method: 'POST',
+                    json: true,
+                    body: {
+                        appid,
+                        country: dump.country,
+                        name: mergeName,
+                        lname: dump.name,
+                        icon: dump.icon,
+                        version,
+                        des: '官方版本',
+                        latest: latestVersion,
+                        status: 1
+                    }
+                }, (err, res, body) => {
+                    console.log(`修改 ${appid} 砸壳状态成功`)
+                    resolve(body)
+                })
+            })
             if (shell.exec(`${aliyunpan} who`).stdout.includes("未登录帐号")) {
                 shell.exec(`${aliyunpan} login --RefreshToken ${token}`).stdout
             }
@@ -158,29 +153,28 @@ async function main() {
             }
             let ipadumpIpaPath = path.resolve(ipaDir, 'ipadump.com_' + latestFileName)
             shell.exec(`mv ${newIpaPath} ${ipadumpIpaPath}`).stdout
-            console.log(`${aliyunpan} ll /ipadump/ipas/${appid}/${'ipadump.com_' + latestFileName}`)
             if (!shell.exec(`${aliyunpan} ll /ipadump/ipas/${appid}/${'ipadump.com_' + latestFileName}`).stdout.includes((await calculateHash(ipadumpIpaPath)).toUpperCase())) {
-                // shell.exec(`${aliyunpan} upload ${ipadumpIpaPath} /ipadump/ipas/${appid} --ow`).stdout
+                shell.exec(`${aliyunpan} upload ${ipadumpIpaPath} /ipadump/ipas/${appid} --ow`).stdout
             } else {
                 console.log('文件已经存在，不需要上传')
             }
 
-            // await new Promise((resolve, reject) => {
-            //     request('https://api.ipadump.com/dump/update', {
-            //         method: 'POST',
-            //         json: true,
-            //         body: {
-            //             appid,
-            //             version,
-            //             latest: parseInt(args[3]),
-            //             status: 2
-            //         }
-            //     }, (err, res, body) => {
-            //         console.log(`修改 ${appid} 砸壳状态成功`)
-            //         resolve(body)
-            //     })
-            // })
-            //
+            await new Promise((resolve, reject) => {
+                request('https://api.ipadump.com/dump/update', {
+                    method: 'POST',
+                    json: true,
+                    body: {
+                        appid,
+                        version,
+                        latest: parseInt(args[3]),
+                        status: 2
+                    }
+                }, (err, res, body) => {
+                    console.log(`修改 ${appid} 砸壳状态成功`)
+                    resolve(body)
+                })
+            })
+
             let f = fs.statSync(ipadumpIpaPath)
             let upsertData = {
                 appid,
@@ -193,17 +187,17 @@ async function main() {
                 des: `官方版本`,
                 file: `https://api.ipadump.com/file/pan/download?fileId=&appid=${appid}&country=${dump.country}&fileName=ipadump.com_${mergeName}_${version}.ipa`
             }
-            console.log('upsert',upsertData)
-            // await new Promise((resolve, reject) => {
-            //     request('https://api.ipadump.com/version/upsert', {
-            //         method: 'POST',
-            //         json: true,
-            //         body: upsertData
-            //     }, (err, res, body) => {
-            //         console.log(`${appid}:${version} 版本增加成功`)
-            //         resolve(body)
-            //     })
-            // })
+            console.log('upsert', upsertData)
+            await new Promise((resolve, reject) => {
+                request('https://api.ipadump.com/version/upsert', {
+                    method: 'POST',
+                    json: true,
+                    body: upsertData
+                }, (err, res, body) => {
+                    console.log(`${appid}:${version} 版本增加成功`)
+                    resolve(body)
+                })
+            })
         }
     })
 
