@@ -123,10 +123,14 @@ async function main() {
             latestDumpIpa = convertIpas[0]
             const appName = latestDumpIpa.fileName.split('_')[0]
             mergeName = mergeName || appName || dump.name
-            version = latestDumpIpa.fileName.split('_')[1].replace('.ipa', '')
+            if(dump.latest===1){
+                version = dump.version
+            }else{
+                version = latestDumpIpa.fileName.split('_')[1].replace('.ipa', '')
+            }
 
             console.log(dump)
-            console.log(`处理的信息 -> ${mergeName}:${version} 最新:${latestVersion} 是否开始处理(默认开始):`)
+            console.log(`处理的信息 -> ${mergeName}:${version} 最新:${dump.latest===1} 是否开始处理(默认开始):`)
             setup = 3
         } else if (setup === 3) {
             console.log(`正在修改 ${appid} 砸壳状态为砸壳中`)
@@ -142,7 +146,7 @@ async function main() {
                         icon: dump.icon,
                         version,
                         des: '官方版本',
-                        latest: latestVersion,
+                        latest: dump.latest===1,
                         status: 1
                     }
                 }, (err, res, body) => {
@@ -179,7 +183,7 @@ async function main() {
                         name: mergeName,
                         lname: dump.name,
                         icon: dump.icon,
-                        latest: latestVersion,
+                        latest: dump.latest===1,
                         status: 2
                     }
                 }, (err, res, body) => {
