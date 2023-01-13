@@ -163,7 +163,6 @@ async function main() {
             } else {
                 console.log('文件已经存在，不需要上传')
             }
-
             await new Promise((resolve, reject) => {
                 request('https://api.ipadump.com/dump/update', {
                     method: 'POST',
@@ -171,6 +170,7 @@ async function main() {
                     body: {
                         appid,
                         version,
+                        country: dump.country,
                         latest: latestVersion,
                         status: 2
                     }
@@ -179,7 +179,6 @@ async function main() {
                     resolve(body)
                 })
             })
-
             let f = fs.statSync(ipadumpIpaPath)
             let upsertData = {
                 appid,
