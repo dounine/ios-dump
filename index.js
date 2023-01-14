@@ -169,8 +169,6 @@ async function main() {
         } else if (setup === 1) {//简化名称输入
             mergeName = line.trim()
             mergeName = mergeName || appName || dump.name
-            console.log(dump)
-            console.log(`处理的信息 -> ${mergeName}:${version} 最新:${dump.latest === 1} 是否开始处理(默认开始):`)
             setup = 2
             appid = dump.appid;
 
@@ -179,6 +177,8 @@ async function main() {
             } else {
                 version = latestDumpIpa.fileName.split('_')[1].replace('.ipa', '')
             }
+            console.log(dump)
+            console.log(`处理的信息 -> ${mergeName}:${version} 最新:${dump.latest === 1} 是否开始处理(默认开始):`)
         } else if (setup === 2) {
             console.log(`正在修改 ${appid} 砸壳状态为砸壳中`)
             await new Promise((resolve, reject) => {
