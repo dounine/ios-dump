@@ -168,6 +168,7 @@ async function main() {
             }
         } else if (setup === 1) {//简化名称输入
             mergeName = line.trim()
+            mergeName = mergeName || appName || dump.name
             console.log(dump)
             console.log(`处理的信息 -> ${mergeName}:${version} 最新:${dump.latest === 1} 是否开始处理(默认开始):`)
             setup = 2
