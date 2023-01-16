@@ -99,9 +99,6 @@ async function main() {
             resolve(JSON.parse(body).data)
         })
     })
-    dumps.forEach((dump, i) => {
-        console.log(`${i}：${dump.name}/${dump.version}`)
-    })
     if (dumps.length === 0) {
         console.log('当前没有正在申请提取的应用');
         // rl.close();
