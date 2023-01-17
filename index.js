@@ -91,7 +91,6 @@ function calculateHash(filePath) {
 }
 
 async function main() {
-    console.log('help：退出请输入q或者exit。')
     let dumps = await new Promise((resolve, reject) => {
         request('https://api.ipadump.com/dump/dumps', {
             method: 'GET',
@@ -101,10 +100,8 @@ async function main() {
     })
     if (dumps.length === 0) {
         console.log('当前没有正在申请提取的应用');
-        // rl.close();
         return;
     }
-    // let setup = 0;
     let dump = null;
     let mergeName = "";
     let appid = "";
@@ -176,6 +173,7 @@ async function main() {
                     } else {
                         mergeName = mergeName || latestDumpIpa.fileName.split('_')[0]
                     }
+                    mergeName = mergeName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '')
                     inquirer
                         .prompt([{
                             type: 'list',
@@ -192,6 +190,7 @@ async function main() {
                         }])
                         .then(async answers3 => {
                             mergeName = mergeName || answers3.name
+                            mergeName = mergeName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '')
 
                             inquirer
                                 .prompt([{
