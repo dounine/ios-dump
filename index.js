@@ -177,7 +177,7 @@ async function main() {
                             type: 'input', name: 'name', message: `请输入简化名称(默认：${mergeName})：`   // 提示信息
                         }])
                         .then(async answers3 => {
-                            mergeName = mergeName || answers3.name
+                            mergeName = answers3.name || mergeName
                             mergeName = mergeName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '')
 
                             inquirer
