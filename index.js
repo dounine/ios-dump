@@ -158,8 +158,6 @@ async function main() {
                             name: `${item.fileName}/${sizeFormat(item.size)}`, value: index
                         }
                     })
-                }, {
-                    type: 'input', name: 'name', message: `请输入简化名称：`   // 提示信息
                 }])
                 .then(async answers2 => {
                     let latestDumpIpa = convertIpas[answers2.file]
