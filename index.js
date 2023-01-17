@@ -176,16 +176,6 @@ async function main() {
                     mergeName = mergeName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '')
                     inquirer
                         .prompt([{
-                            type: 'list',
-                            name: 'file',
-                            message: '请选择上传的ipa文件：',
-                            default: 0,
-                            choices: convertIpas.map((item, index) => {
-                                return {
-                                    name: `${item.fileName}/${sizeFormat(item.size)}`, value: index
-                                }
-                            })
-                        }, {
                             type: 'input', name: 'name', message: `请输入简化名称(默认：${mergeName})：`   // 提示信息
                         }])
                         .then(async answers3 => {
