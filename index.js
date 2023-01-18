@@ -92,7 +92,7 @@ function calculateHash(filePath) {
 
 async function main() {
     let dumps = await new Promise((resolve, reject) => {
-        request('https://api.ipadump.com/dump/dumps', {
+        request('https://api.ipadump.com/dump/dumps?limit=100', {
             method: 'GET',
         }, (err, res, body) => {
             resolve(JSON.parse(body).data)
