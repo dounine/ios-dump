@@ -171,7 +171,7 @@ async function main() {
                     } else {
                         mergeName = mergeName || latestDumpIpa.fileName.split('_')[0]
                     }
-                    mergeName = mergeName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '')
+                    mergeName = mergeName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9-|()&+ 、：]/g, '')
                     inquirer
                         .prompt([{
                             type: 'input', name: 'name', message: `请输入简化名称(默认：${mergeName})：`   // 提示信息
@@ -202,7 +202,8 @@ async function main() {
                                             icon: dump.icon,
                                             version,
                                             des: '官方版本',
-                                            latest: dump.latest,
+                                            latest: 1,
+                                            bundleId: dump.bundleId,
                                             status: 1
                                         }
                                     }, (err, res, body) => {
@@ -237,7 +238,9 @@ async function main() {
                                             name: mergeName,
                                             lname: dump.name,
                                             icon: dump.icon,
-                                            latest: dump.latest,
+                                            des: '官方版本',
+                                            latest: 1,
+                                            bundleId: dump.bundleId,
                                             status: 2
                                         }
                                     }, (err, res, body) => {
@@ -249,7 +252,6 @@ async function main() {
                                 let upsertData = {
                                     appid,
                                     version,
-                                    status: 2,
                                     country: dump.country,
                                     push: 1,
                                     download: 0,
