@@ -161,16 +161,16 @@ async function main() {
                 }])
                 .then(async answers2 => {
                     let latestDumpIpa = convertIpas[answers2.file]
-                    if (dump.latest === 1) {
-                        version = dump.version
-                    } else {
-                        version = latestDumpIpa.fileName.split('_')[1].replace('.ipa', '')
-                    }
-                    if (dump.name.length < latestDumpIpa.fileName.split('_')[0].length) {
-                        mergeName = mergeName || dump.name
-                    } else {
-                        mergeName = mergeName || latestDumpIpa.fileName.split('_')[0]
-                    }
+                    // if (dump.latest === 1) {
+                    version = dump.version
+                    // } else {
+                    //     version = latestDumpIpa.fileName.split('_')[1].replace('.ipa', '')
+                    // }
+                    // if (dump.name.length < latestDumpIpa.fileName.split('_')[0].length) {
+                    mergeName = dump.name
+                    // } else {
+                    //     mergeName = mergeName || latestDumpIpa.fileName.split('_')[0]
+                    // }
                     mergeName = mergeName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9-|()&+ 、：]/g, '')
                     inquirer
                         .prompt([{
