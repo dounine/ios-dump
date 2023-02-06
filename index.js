@@ -221,7 +221,7 @@ async function main() {
                                 if (`${latestFileName}` !== latestDumpIpa.fileName) {
                                     console.log(`${latestFileName} 跟 ${latestDumpIpa.fileName} 不相同，重新命名`)
                                     let oldIpaPath = path.resolve(ipaDir, latestDumpIpa.fileName).toString()
-                                    await fs.rename(oldIpaPath, newIpaPath)
+                                    await fs.renameSync(oldIpaPath, newIpaPath)
                                 }
                                 let ipadumpIpaPath = path.resolve(ipaDir, latestFileName)
 
