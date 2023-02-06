@@ -214,21 +214,33 @@ async function main() {
                                 if (shell.exec(`${aliyunpan} who`).stdout.includes("未登录帐号")) {
                                     shell.exec(`${aliyunpan} login --RefreshToken ${token}`).stdout
                                 }
-                                shell.exec(`${aliyunpan} mkdir /ipadump/ipas/${dump.country}/${appid}`).stdout //创建目录
-                                let latestFileName = `${mergeName}_${version}.ipa`
+                                shell.exec(`${aliyunpan} mkdir "/ipadump/ipas/${dump.country}/${appid}"`).stdout //创建目录
+
+                                let latestFileName = `ipadump.com_${mergeName}_${version}.ipa`
                                 let newIpaPath = path.resolve(ipaDir, latestFileName)
                                 if (`${latestFileName}` !== latestDumpIpa.fileName) {
                                     console.log(`${latestFileName} 跟 ${latestDumpIpa.fileName} 不相同，重新命名`)
-                                    let oldIpaPath = replaceAll(path.resolve(ipaDir, latestDumpIpa.fileName).toString(), ' ', '\\ ')
-                                    shell.exec(`mv ${oldIpaPath} ${newIpaPath}`).stdout
+                                    let oldIpaPath = path.resolve(ipaDir, latestDumpIpa.fileName).toString()
+                                    await fs.rename(oldIpaPath, newIpaPath)
                                 }
-                                let ipadumpIpaPath = path.resolve(ipaDir, 'ipadump.com_' + latestFileName)
-                                shell.exec(`mv ${newIpaPath} ${ipadumpIpaPath}`).stdout
-                                if (!shell.exec(`${aliyunpan} ll /ipadump/ipas/${dump.country}/${appid}/${'ipadump.com_' + latestFileName}`).stdout.includes((await calculateHash(ipadumpIpaPath)).toUpperCase())) {
-                                    shell.exec(`${aliyunpan} upload ${ipadumpIpaPath} /ipadump/ipas/${dump.country}/${appid} --ow`).stdout
-                                } else {
-                                    console.log('文件已经存在，不需要上传')
-                                }
+                                let ipadumpIpaPath = path.resolve(ipaDir, latestFileName)
+
+                                // let latestFileName = `${mergeName}_${version}.ipa`
+                                // let newIpaPath = path.resolve(ipaDir, latestFileName)
+                                // if (`${latestFileName}` !== latestDumpIpa.fileName) {
+                                //     console.log(`${latestFileName} 跟 ${latestDumpIpa.fileName} 不相同，重新命名`)
+                                //     let oldIpaPath = path.resolve(ipaDir, latestDumpIpa.fileName).toString()//replaceAll(path.resolve(ipaDir, latestDumpIpa.fileName).toString(), ' ', '\\ ')
+                                //     fs.renameSync(oldIpaPath, newIpaPath)
+                                //     // shell.exec(`mv "${oldIpaPath}" "${newIpaPath}"`).stdout
+                                // }
+                                // let ipadumpIpaPath = path.resolve(ipaDir, 'ipadump.com_' + latestFileName)
+                                // shell.exec(`mv "${newIpaPath} ${ipadumpIpaPath}`).stdout
+                                // fs.renameSync(newIpaPath, ipadumpIpaPath)
+                                // if (!shell.exec(`${aliyunpan} ll "/ipadump/ipas/${dump.country}/${appid}/${'ipadump.com_' + latestFileName}"`).stdout.includes((await calculateHash(ipadumpIpaPath)).toUpperCase())) {
+                                shell.exec(`${aliyunpan} upload "${ipadumpIpaPath} /ipadump/ipas/${dump.country}/${appid}" --ow`).stdout
+                                // } else {
+                                //     console.log('文件已经存在，不需要上传')
+                                // }
                                 await new Promise((resolve, reject) => {
                                     request('https://api.ipadump.com/dump/update', {
                                         method: 'POST', json: true, body: {
