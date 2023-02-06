@@ -237,7 +237,7 @@ async function main() {
                                 // shell.exec(`mv "${newIpaPath} ${ipadumpIpaPath}`).stdout
                                 // fs.renameSync(newIpaPath, ipadumpIpaPath)
                                 // if (!shell.exec(`${aliyunpan} ll "/ipadump/ipas/${dump.country}/${appid}/${'ipadump.com_' + latestFileName}"`).stdout.includes((await calculateHash(ipadumpIpaPath)).toUpperCase())) {
-                                shell.exec(`${aliyunpan} upload "${ipadumpIpaPath} /ipadump/ipas/${dump.country}/${appid}" --ow`).stdout
+                                shell.exec(`${aliyunpan} upload "${ipadumpIpaPath}" "/ipadump/ipas/${dump.country}/${appid}" --ow`).stdout
                                 // } else {
                                 //     console.log('文件已经存在，不需要上传')
                                 // }
