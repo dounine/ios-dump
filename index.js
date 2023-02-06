@@ -178,7 +178,7 @@ async function main() {
                         }])
                         .then(async answers3 => {
                             mergeName = answers3.name || mergeName
-                            mergeName = mergeName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '')
+                            mergeName = mergeName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9-|()&+ 、：]/g, '')
 
                             inquirer
                                 .prompt([{
