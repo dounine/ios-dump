@@ -161,17 +161,8 @@ async function main() {
                 }])
                 .then(async answers2 => {
                     let latestDumpIpa = convertIpas[answers2.file]
-                    // if (dump.latest === 1) {
                     version = dump.version
-                    // } else {
-                    //     version = latestDumpIpa.fileName.split('_')[1].replace('.ipa', '')
-                    // }
-                    // if (dump.name.length < latestDumpIpa.fileName.split('_')[0].length) {
                     mergeName = dump.name
-                    // } else {
-                    //     mergeName = mergeName || latestDumpIpa.fileName.split('_')[0]
-                    // }
-                    mergeName = mergeName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9-|()&+ 、：]/g, '')
                     inquirer
                         .prompt([{
                             type: 'input', name: 'name', message: `请输入简化名称(默认：${mergeName})：`   // 提示信息
@@ -225,22 +216,7 @@ async function main() {
                                 }
                                 let ipadumpIpaPath = path.resolve(ipaDir, latestFileName)
 
-                                // let latestFileName = `${mergeName}_${version}.ipa`
-                                // let newIpaPath = path.resolve(ipaDir, latestFileName)
-                                // if (`${latestFileName}` !== latestDumpIpa.fileName) {
-                                //     console.log(`${latestFileName} 跟 ${latestDumpIpa.fileName} 不相同，重新命名`)
-                                //     let oldIpaPath = path.resolve(ipaDir, latestDumpIpa.fileName).toString()//replaceAll(path.resolve(ipaDir, latestDumpIpa.fileName).toString(), ' ', '\\ ')
-                                //     fs.renameSync(oldIpaPath, newIpaPath)
-                                //     // shell.exec(`mv "${oldIpaPath}" "${newIpaPath}"`).stdout
-                                // }
-                                // let ipadumpIpaPath = path.resolve(ipaDir, 'ipadump.com_' + latestFileName)
-                                // shell.exec(`mv "${newIpaPath} ${ipadumpIpaPath}`).stdout
-                                // fs.renameSync(newIpaPath, ipadumpIpaPath)
-                                // if (!shell.exec(`${aliyunpan} ll "/ipadump/ipas/${dump.country}/${appid}/${'ipadump.com_' + latestFileName}"`).stdout.includes((await calculateHash(ipadumpIpaPath)).toUpperCase())) {
                                 shell.exec(`${aliyunpan} upload "${ipadumpIpaPath}" "/ipadump/ipas/${dump.country}/${appid}" --ow`).stdout
-                                // } else {
-                                //     console.log('文件已经存在，不需要上传')
-                                // }
                                 await new Promise((resolve, reject) => {
                                     request('https://api.ipadump.com/dump/update', {
                                         method: 'POST', json: true, body: {
@@ -272,7 +248,6 @@ async function main() {
                                     des: `官方版本`,
                                     file: `https://api.ipadump.com/file/pan/download?fileId=&appid=${appid}&country=${dump.country}&fileName=ipadump.com_${mergeName}_${version}.ipa`
                                 }
-                                console.log('upsert', upsertData)
                                 await new Promise((resolve, reject) => {
                                     request('https://api.ipadump.com/version/upsert', {
                                         method: 'POST', json: true, body: upsertData
