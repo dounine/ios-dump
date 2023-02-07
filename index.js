@@ -5,6 +5,7 @@ import fs from 'fs';
 import fse from 'fs-extra';
 import {createRequire} from "module";
 import crypto from 'crypto';
+import fetch from 'node-fetch';
 import inquirer from 'inquirer';
 
 const require = createRequire(import.meta.url);
@@ -182,6 +183,27 @@ async function main() {
                                     console.log('byte byte!!!')
                                     return;
                                 }
+
+                                console.log('检查appStore上的版本跟上传的版本是不是新的')
+                                let lookupResponse = await (await fetch(`https://itunes.apple.com/lookup?id=${appid}&country=${dump.country}&_=${new Date().getTime()}`, {
+                                    method: 'post',
+                                    headers: {'Content-Type': 'application/json'}
+                                })).json()
+
+                                let storeInfo = null
+                                if (lookupResponse.results.length > 0) {
+                                    storeInfo = lookupResponse.results[0]
+                                    if (storeInfo.version !== version) {
+                                        console.error(`appStore上的最新版本为：${storeInfo.version} , 要提取的版本为：${version} , 不满足最新版本需求，请检查。`)
+                                        return;
+                                    } else {
+                                        console.log('版本是最新的，继续往下处理')
+                                    }
+                                } else {
+                                    console.error('appStore不存在，请检查')
+                                    return;
+                                }
+
                                 console.log(`正在修改 ${appid} 砸壳状态为砸壳中`)
                                 await new Promise((resolve, reject) => {
                                     request('https://api.ipadump.com/dump/update', {
@@ -193,6 +215,8 @@ async function main() {
                                             icon: dump.icon,
                                             version,
                                             des: '官方版本',
+                                            price: storeInfo.price,
+                                            genres: storeInfo.genres.join("/"),
                                             latest: 1,
                                             bundleId: dump.bundleId,
                                             status: 1
@@ -234,6 +258,8 @@ async function main() {
                                             name: mergeName,
                                             lname: dump.name,
                                             icon: dump.icon,
+                                            price: storeInfo.price,
+                                            genres: storeInfo.genres.join("/"),
                                             des: '官方版本',
                                             latest: 1,
                                             bundleId: dump.bundleId,
