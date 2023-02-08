@@ -19,7 +19,6 @@
   "homepage": "https://github.com/dounine/ios-dump#readme",
   "dependencies": {
     "crypto": "^1.0.1",
-    "fs": "^0.0.1-security",
     "fs-extra": "^11.1.0",
     "inquirer": "^8.2.5",
     "node-fetch": "^2.3.0",
