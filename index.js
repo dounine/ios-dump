@@ -161,9 +161,23 @@ async function main() {
                     })
                 }])
                 .then(async answers2 => {
+                    let appInfo = await new Promise((resolve, reject) => {
+                        request(`https://api.ipadump.com/app/info?appid=${dump.appid}&country=${dump.country}`, {
+                            method: 'GET',
+                            json: true
+                        }, (err, res, body) => {
+                            resolve(body.data)
+                        })
+                    })
+
                     let latestDumpIpa = convertIpas[answers2.file]
                     version = dump.version
                     mergeName = dump.name
+                    if (appInfo && appInfo.appid) {
+                        console.log(`应用已存在，使用原名称：${appInfo.name}`)
+                        mergeName = appInfo.name
+                    }
+
                     inquirer
                         .prompt([{
                             type: 'input', name: 'name', message: `请输入简化名称(默认：${mergeName})：`   // 提示信息
@@ -286,7 +300,7 @@ async function main() {
                                     request('https://api.ipadump.com/version/upsert', {
                                         method: 'POST', json: true, body: upsertData
                                     }, (err, res, body) => {
-                                        shell.exec(`rm -rf ${ipadumpIpaPath}`).stdout
+                                        fs.rmSync(ipadumpIpaPath)
                                         console.log(`${appid}:${version} 版本增加成功`)
                                         resolve(body)
                                     })
