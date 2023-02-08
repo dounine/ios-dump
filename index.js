@@ -163,7 +163,7 @@ async function main() {
                 .then(async answers2 => {
                     let latestDumpIpa = convertIpas[answers2.file]
                     version = dump.version
-                    mergeName = dump.name
+                    mergeName = dump.mergeName
                     inquirer
                         .prompt([{
                             type: 'input', name: 'name', message: `请输入简化名称(默认：${mergeName})：`   // 提示信息
