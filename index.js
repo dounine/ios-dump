@@ -164,17 +164,18 @@ async function main() {
                     let appInfo = await new Promise((resolve, reject) => {
                         request(`https://api.ipadump.com/app/info?appid=${dump.appid}&country=${dump.country}`, {
                             method: 'GET',
+                            json: true
                         }, (err, res, body) => {
-                            resolve(JSON.parse(body).data)
+                            resolve(body.data)
                         })
                     })
 
                     let latestDumpIpa = convertIpas[answers2.file]
                     version = dump.version
                     mergeName = dump.name
-                    if (appInfo.data && appInfo.data.appid) {
-                        console.log(`应用已存在，使用原名称：${appInfo.data.name}`)
-                        mergeName = appInfo.data.name
+                    if (appInfo && appInfo.appid) {
+                        console.log(`应用已存在，使用原名称：${appInfo.name}`)
+                        mergeName = appInfo.name
                     }
 
                     inquirer
