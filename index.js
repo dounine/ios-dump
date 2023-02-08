@@ -300,7 +300,7 @@ async function main() {
                                     request('https://api.ipadump.com/version/upsert', {
                                         method: 'POST', json: true, body: upsertData
                                     }, (err, res, body) => {
-                                        fs.rmSync(ipadumpIpaPath)
+                                        fse.removeSync(ipadumpIpaPath)
                                         console.log(`${appid}:${version} 版本增加成功`)
                                         resolve(body)
                                     })
