@@ -172,7 +172,8 @@ async function main() {
                     let latestDumpIpa = convertIpas[answers2.file]
                     version = dump.version
                     mergeName = dump.name
-                    if (appInfo.data.appid) {
+                    if (appInfo.data && appInfo.data.appid) {
+                        console.log(`应用已存在，使用原名称：${appInfo.data.name}`)
                         mergeName = appInfo.data.name
                     }
 
