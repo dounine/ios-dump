@@ -256,9 +256,12 @@ async function main() {
                                 }
                                 let ipadumpIpaPath = path.resolve(ipaDir, latestFileName)
 
+                                console.log("阿里云盘上传中...");
                                 shell.exec(`${aliyunpan} upload "${ipadumpIpaPath}" "/ipadump/ipas/${dump.country}/${appid}" --ow`).stdout
+                                console.log("阿里云盘上传完成");
+                                console.log("天翼云盘上传中...");
                                 shell.exec(`${tianyi} upload "${ipadumpIpaPath}" "/ipadump/ipas/${dump.country}/${appid}" --ow`).stdout
-
+                                console.log("天翼云盘上传完成");
                                 // if (shell.exec(`${aliyunpan} ll "/ipadump/ipas/${dump.country}/${appid}/${latestFileName}"`).stdout.includes("目录路径不存在")) {
                                 //     console.log('文件上传失败，请检查')
                                 //     return
