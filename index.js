@@ -9,7 +9,7 @@ import fetch from 'node-fetch';
 import inquirer from 'inquirer';
 
 const require = createRequire(import.meta.url);
-const {aliyunpan, ipaDirPath, token} = require('./config.json');
+const {aliyunpan, tianyi, ipaDirPath, token} = require('./config.json');
 
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
@@ -240,12 +240,12 @@ async function main() {
                                         resolve(body)
                                     })
                                 })
-                                if (shell.exec(`${aliyunpan} who`).stdout.includes("未登录帐号")) {
-                                    shell.exec(`${aliyunpan} login --RefreshToken ${token}`).stdout
-                                }
-                                if (shell.exec(`${aliyunpan} ll "/ipadump/ipas/${dump.country}/${appid}"`).stdout.includes('目录路径不存在')) {
-                                    shell.exec(`${aliyunpan} mkdir "/ipadump/ipas/${dump.country}/${appid}"`).stdout //创建目录
-                                }
+                                // if (shell.exec(`${aliyunpan} who`).stdout.includes("未登录帐号")) {
+                                //     shell.exec(`${aliyunpan} login --RefreshToken ${token}`).stdout
+                                // }
+                                // if (shell.exec(`${aliyunpan} ll "/ipadump/ipas/${dump.country}/${appid}"`).stdout.includes('目录路径不存在')) {
+                                //     shell.exec(`${aliyunpan} mkdir "/ipadump/ipas/${dump.country}/${appid}"`).stdout //创建目录
+                                // }
 
                                 let latestFileName = `ipadump.com_${mergeName}_${version}.ipa`
                                 let newIpaPath = path.resolve(ipaDir, latestFileName)
@@ -257,11 +257,12 @@ async function main() {
                                 let ipadumpIpaPath = path.resolve(ipaDir, latestFileName)
 
                                 shell.exec(`${aliyunpan} upload "${ipadumpIpaPath}" "/ipadump/ipas/${dump.country}/${appid}" --ow`).stdout
+                                shell.exec(`${tianyi} upload "${ipadumpIpaPath}" "/ipadump/ipas/${dump.country}/${appid}" --ow`).stdout
 
-                                if (shell.exec(`${aliyunpan} ll "/ipadump/ipas/${dump.country}/${appid}/${latestFileName}"`).stdout.includes("目录路径不存在")) {
-                                    console.log('文件上传失败，请检查')
-                                    return
-                                }
+                                // if (shell.exec(`${aliyunpan} ll "/ipadump/ipas/${dump.country}/${appid}/${latestFileName}"`).stdout.includes("目录路径不存在")) {
+                                //     console.log('文件上传失败，请检查')
+                                //     return
+                                // }
 
                                 await new Promise((resolve, reject) => {
                                     request('https://api.ipadump.com/dump/update', {
