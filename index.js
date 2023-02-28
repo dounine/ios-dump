@@ -7,9 +7,10 @@ import {createRequire} from "module";
 import crypto from 'crypto';
 import fetch from 'node-fetch';
 import inquirer from 'inquirer';
+import qiniu from "qiniu";
 
 const require = createRequire(import.meta.url);
-const {aliyunpan, tianyi, ipaDirPath, token} = require('./config.json');
+const _config = require('./config.json');
 
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
@@ -103,7 +104,7 @@ async function main() {
         console.log('当前没有正在申请提取的应用');
         return;
     }
-    let dump = null;
+    let dumpInfo = null;
     let mergeName = "";
     let appid = "";
     let version = "";
@@ -113,9 +114,9 @@ async function main() {
             type: 'list',
             name: 'path',
             message: '请选择要上传的文件位置：',
-            choices: Object.keys(ipaDirPath).map((item, index) => {
+            choices: Object.keys(_config.ipaDirPath).map((item, index) => {
                 return {
-                    name: ipaDirPath[item], value: item
+                    name: _config.ipaDirPath[item], value: item
                 }
             })
         }, {
@@ -126,9 +127,9 @@ async function main() {
             })
         }])
         .then(async answers => {
-            let ipaDir = ipaDirPath[answers.path]
-            dump = dumps[answers.dump]
-            appid = dump.appid;
+            let ipaDir = _config.ipaDirPath[answers.path]
+            dumpInfo = dumps[answers.dump]
+            appid = dumpInfo.appid;
 
             const ipas = (await fse.readdir(ipaDir))
             const convertIpas = ipas.map(fileName => {
@@ -162,7 +163,7 @@ async function main() {
                 }])
                 .then(async answers2 => {
                     let appInfo = await new Promise((resolve, reject) => {
-                        request(`https://api.ipadump.com/app/info?appid=${dump.appid}&country=${dump.country}`, {
+                        request(`https://api.ipadump.com/app/info?appid=${dumpInfo.appid}&country=${dumpInfo.country}`, {
                             method: 'GET',
                             json: true
                         }, (err, res, body) => {
@@ -171,8 +172,8 @@ async function main() {
                     })
 
                     let latestDumpIpa = convertIpas[answers2.file]
-                    version = dump.version
-                    mergeName = dump.name
+                    version = dumpInfo.version
+                    mergeName = dumpInfo.name
                     if (appInfo && appInfo.appid) {
                         console.log(`应用已存在，使用原名称：${appInfo.name}`)
                         mergeName = appInfo.name
@@ -190,7 +191,7 @@ async function main() {
                                 .prompt([{
                                     type: 'confirm',
                                     name: 'ok',
-                                    message: `(${mergeName}:${version}:${dump.latest ? '最新' : '旧的'}) 是否确认处理:`,
+                                    message: `(${mergeName}:${version}:${dumpInfo.latest ? '最新' : '旧的'}) 是否确认处理:`,
                                     default: true
                                 }]).then(async answers4 => {
                                 if (!answers4.ok) {
@@ -199,7 +200,7 @@ async function main() {
                                 }
 
                                 console.log('检查appStore上的版本跟上传的版本是不是新的')
-                                let lookupResponse = await (await fetch(`https://itunes.apple.com/lookup?id=${appid}&country=${dump.country}&_=${new Date().getTime()}`, {
+                                let lookupResponse = await (await fetch(`https://itunes.apple.com/lookup?id=${appid}&country=${dumpInfo.country}&_=${new Date().getTime()}`, {
                                     method: 'post',
                                     headers: {'Content-Type': 'application/json'}
                                 })).json()
@@ -223,16 +224,16 @@ async function main() {
                                     request('https://api.ipadump.com/dump/update', {
                                         method: 'POST', json: true, body: {
                                             appid,
-                                            country: dump.country,
+                                            country: dumpInfo.country,
                                             name: mergeName,
-                                            lname: dump.name,
-                                            icon: dump.icon,
+                                            lname: dumpInfo.name,
+                                            icon: dumpInfo.icon,
                                             version,
                                             des: '官方版本',
                                             price: storeInfo.price,
                                             genres: storeInfo.genres.join("/"),
                                             latest: 1,
-                                            bundleId: dump.bundleId,
+                                            bundleId: dumpInfo.bundleId,
                                             status: 1
                                         }
                                     }, (err, res, body) => {
@@ -256,12 +257,95 @@ async function main() {
                                 }
                                 let ipadumpIpaPath = path.resolve(ipaDir, latestFileName)
 
-                                console.log("阿里云盘上传中...");
-                                shell.exec(`${aliyunpan} upload "${ipadumpIpaPath}" "/ipadump/ipas/${dump.country}/${appid}" --ow`).stdout
-                                console.log("阿里云盘上传完成");
+                                let uploadQiniuSuccess = false
+                                console.log('七牛云盘上传中...')
+                                await new Promise((resolve, reject) => {
+                                    let localFile = ipadumpIpaPath;// "/Users/jemy/Documents/qiniu.mp4";
+                                    let options = {
+                                        scope: _config.qiniu.bucket,
+                                        expires: 7200,
+                                        insertOnly: 0
+                                    };
+                                    let putPolicy = new qiniu.rs.PutPolicy(options);
+                                    let mac = new qiniu.auth.digest.Mac(_config.qiniu.key, _config.qiniu.token);
+                                    let uploadToken = putPolicy.uploadToken(mac);
+                                    let c = new qiniu.conf.Config();
+                                    c.zone = qiniu.zone.Zone_z2;
+                                    // c.useHttpsDomain = false;
+                                    // c.useCdnDomain = false;
+                                    let resumeUploader = new qiniu.resume_up.ResumeUploader(c);
+                                    let putExtra = new qiniu.resume_up.PutExtra();
+                                    putExtra.fname = latestFileName;
+                                    putExtra.resumeRecordFile = './progress.log';
+                                    if (!fs.existsSync(putExtra.resumeRecordFile)) {
+                                        console.log('文件不存在，创建')
+                                        fs.writeFileSync(putExtra.resumeRecordFile, '{}');
+                                    }
+                                    putExtra.progressCallback = async (uploadBytes, totalBytes) => {
+                                        let process = Math.round((uploadBytes / totalBytes) * 50)
+                                        await (await fetch(`https://api.ipadump.com/automation/anjian/upload/${process}`, {
+                                            method: 'post',
+                                            headers: {'Content-Type': 'application/json'}
+                                        })).json()
+                                    }
+                                    putExtra.version = 'v1'
+                                    // putExtra.partSize = 6 * 1024 * 1024
+                                    let key = fileName;
+                                    resumeUploader.putFile(uploadToken, `ipas/${dumpInfo.country}/${dumpInfo.appid}/${key}`, localFile, putExtra, function (respErr, respBody, respInfo) {
+                                        if (respErr) {
+                                            throw respErr;
+                                        }
+                                        if (respInfo.statusCode === 200) {
+                                            console.log("上传完成");
+                                            console.log(respBody);
+                                            uploadQiniuSuccess = true;
+                                        } else {
+                                            console.log(respInfo.statusCode);
+                                            console.log(respBody);
+                                        }
+                                        resolve('finish')
+                                    });
+                                })
+
+                                if (!uploadQiniuSuccess) {
+                                    console.log('七牛上传失败');
+                                    return
+                                }
+
+                                // console.log("阿里云盘上传中...");
+                                // shell.exec(`${aliyunpan} upload "${ipadumpIpaPath}" "/ipadump/ipas/${dump.country}/${appid}" --ow`).stdout
+                                // console.log("阿里云盘上传完成");
                                 console.log("天翼云盘上传中...");
-                                shell.exec(`${tianyi} upload "${ipadumpIpaPath}" "/ipadump/ipas/${dump.country}/${appid}" --ow`).stdout
+                                // shell.exec(`${tianyi} upload "${ipadumpIpaPath}" "/ipadump/ipas/${dump.country}/${appid}" --ow`).stdout
+                                let uploadTianyiSuccess = false
+                                await new Promise((resolve, reject) => {
+                                    let child = shell.exec(`${_config.tianyi} upload "${ipadumpIpaPath}" "/ipadump/ipas/${dumpInfo.country}/${dumpInfo.appid}" --ow`, {async: true})
+                                    child.stdout.on('data', async function (data) {
+                                        if (!uploadTianyiSuccess) {
+                                            uploadTianyiSuccess = data.trim().includes("上传文件成功")
+                                        }
+                                        if (data.trim().startsWith("[1] ↑ ")) {
+                                            let uploadStr = data.split(" ↑ ")[1].split(" ")[0]
+                                            let lStr = uploadStr.split("/")[0]
+                                            let rStr = uploadStr.split("/")[1]
+                                            let totalSize = parseFloat(rStr) * (rStr.includes("GB") ? 1024 : 1)
+                                            let uploadedSize = parseFloat(lStr) * (lStr.includes("GB") ? 1024 : 1)
+                                            let process = Math.round((uploadedSize / totalSize) * 50)
+                                            await (await fetch(`https://api.ipadump.com/automation/anjian/upload/${(50 + process)}`, {
+                                                method: 'post',
+                                                headers: {'Content-Type': 'application/json'}
+                                            })).json()
+                                        }
+                                    })
+                                    child.stdout.on('end', function () {
+                                        resolve('finish')
+                                    })
+                                })
                                 console.log("天翼云盘上传完成");
+                                if(!uploadTianyiSuccess){
+                                    console.error('天翼云盘上传失败');
+                                    return;
+                                }
                                 // if (shell.exec(`${aliyunpan} ll "/ipadump/ipas/${dump.country}/${appid}/${latestFileName}"`).stdout.includes("目录路径不存在")) {
                                 //     console.log('文件上传失败，请检查')
                                 //     return

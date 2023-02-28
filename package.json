@@ -22,6 +22,7 @@
     "fs-extra": "^11.1.0",
     "inquirer": "^8.2.5",
     "node-fetch": "^2.3.0",
+    "qiniu": "^7.8.0",
     "request": "^2.88.2",
     "shelljs": "^0.8.5"
   }
