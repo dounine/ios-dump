@@ -290,7 +290,6 @@ async function main() {
                                     }
                                     putExtra.version = 'v1'
                                     // putExtra.partSize = 6 * 1024 * 1024
-                                    let key = fileName;
                                     resumeUploader.putFile(uploadToken, `ipas/${dumpInfo.country}/${dumpInfo.appid}/${key}`, localFile, putExtra, function (respErr, respBody, respInfo) {
                                         if (respErr) {
                                             throw respErr;
