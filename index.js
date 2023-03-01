@@ -355,15 +355,15 @@ async function main() {
                                         method: 'POST', json: true, body: {
                                             appid,
                                             version,
-                                            country: dump.country,
+                                            country: dumpInfo.country,
                                             name: mergeName,
-                                            lname: dump.name,
-                                            icon: dump.icon,
+                                            lname: dumpInfo.name,
+                                            icon: dumpInfo.icon,
                                             price: storeInfo.price,
                                             genres: storeInfo.genres.join("/"),
                                             des: '官方版本',
                                             latest: 1,
-                                            bundleId: dump.bundleId,
+                                            bundleId: dumpInfo.bundleId,
                                             status: 2
                                         }
                                     }, (err, res, body) => {
@@ -375,13 +375,13 @@ async function main() {
                                 let upsertData = {
                                     appid,
                                     version,
-                                    country: dump.country,
+                                    country: dumpInfo.country,
                                     push: 1,
                                     download: 0,
                                     size: f.size,
                                     official: 1,
                                     des: `官方版本`,
-                                    file: `https://api.ipadump.com/file/pan/download?fileId=&appid=${appid}&country=${dump.country}&fileName=ipadump.com_${mergeName}_${version}.ipa`
+                                    file: `https://api.ipadump.com/file/pan/download?fileId=&appid=${appid}&country=${dumpInfo.country}&fileName=ipadump.com_${mergeName}_${version}.ipa`
                                 }
                                 await new Promise((resolve, reject) => {
                                     request('https://api.ipadump.com/version/upsert', {
