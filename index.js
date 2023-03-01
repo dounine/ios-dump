@@ -138,9 +138,9 @@ async function main() {
                     fileName, size: ipaFile.size, time: ipaFile.mtimeMs
                 };
             })
-                // .filter(item => {
-                //     return !item.fileName.startsWith('ipadump.com');
-                // });
+            // .filter(item => {
+            //     return !item.fileName.startsWith('ipadump.com');
+            // });
             if (convertIpas.length === 0) {
                 console.log('不存在未上传文件')
                 return false;
@@ -291,6 +291,7 @@ async function main() {
                                         }
                                         putExtra.progressCallback = async (uploadBytes, totalBytes) => {
                                             let process = Math.round((uploadBytes / totalBytes) * 50)
+                                            console.log('七牛 upload:', process)
                                             await (await fetch(`https://api.ipadump.com/automation/anjian/upload/${process}`, {
                                                 method: 'post',
                                                 headers: {'Content-Type': 'application/json'}
@@ -321,7 +322,7 @@ async function main() {
 
 
                                 let uploadTianyiSuccess = true
-                                if(answers3.pan===0 || answers3.pan===2){
+                                if (answers3.pan === 0 || answers3.pan === 2) {
                                     uploadTianyiSuccess = false
                                     console.log("天翼云盘上传中...");
                                     await new Promise((resolve, reject) => {
