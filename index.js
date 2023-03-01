@@ -138,9 +138,9 @@ async function main() {
                     fileName, size: ipaFile.size, time: ipaFile.mtimeMs
                 };
             })
-                .filter(item => {
-                    return !item.fileName.startsWith('ipadump.com');
-                });
+                // .filter(item => {
+                //     return !item.fileName.startsWith('ipadump.com');
+                // });
             if (convertIpas.length === 0) {
                 console.log('不存在未上传文件')
                 return false;
